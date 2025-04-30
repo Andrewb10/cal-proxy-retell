@@ -1,24 +1,26 @@
-const express = require('express');
-const axios = require('axios');
-const app = express();
-app.use(express.json());
+import axios from "axios";
 
-app.post('/book', async (req, res) => {
+export default async function handler(req, res) {
+  const { start, attendee, bookingFieldsResponses } = req.body;
+
+  if (!start || !attendee?.phoneNumber) {
+    return res.status(200).json({ message: "Test OK – No booking made" });
+  }
+
   try {
-    const response = await axios.post('https://api.cal.com/v2/bookings', req.body, {
+    const response = await axios.post("https://api.cal.com/v2/bookings", req.body, {
       headers: {
-        'Authorization': `Bearer ${process.env.CAL_API_KEY}`,
-        'Content-Type': 'application/json',
-        'cal-api-version': '2'
-      }
+        Authorization: `Bearer ${process.env.CAL_API_KEY}`,
+        "Content-Type": "application/json",
+        "cal-api-version": "2",
+      },
     });
-    res.json(response.data);
+
+    res.status(200).json(response.data);
   } catch (error) {
     res.status(error.response?.status || 500).json({
       error: error.message,
-      details: error.response?.data
+      details: error.response?.data,
     });
   }
-});
-
-module.exports = app;
+}
